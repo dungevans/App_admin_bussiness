@@ -25,7 +25,28 @@ public class ProductViewModel extends ViewModel {
 
     public void fetchProducts() {
         _isLoading.setValue(true);
+        // 1. Try Admin endpoint first
         RetrofitClient.getApiService().getProducts("", 100, 0).enqueue(new Callback<ProductResponse>() {
+            @Override
+            public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    _isLoading.setValue(false);
+                    _products.setValue(response.body().getContent());
+                } else {
+                    // 2. Try Public endpoint as fallback
+                    fetchProductsPublic();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ProductResponse> call, Throwable t) {
+                fetchProductsPublic();
+            }
+        });
+    }
+
+    private void fetchProductsPublic() {
+        RetrofitClient.getApiService().getProductsPublic("", 100, 0).enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
                 _isLoading.setValue(false);
@@ -39,7 +60,7 @@ public class ProductViewModel extends ViewModel {
             @Override
             public void onFailure(Call<ProductResponse> call, Throwable t) {
                 _isLoading.setValue(false);
-                _error.setValue("Lỗi: " + t.getMessage());
+                _error.setValue("Lỗi kết nối: " + t.getMessage());
             }
         });
     }

@@ -40,6 +40,13 @@ public interface ApiService {
             @Query("page") Integer page
     );
 
+    @GET("api/v1/product/view")
+    Call<ProductResponse> getProductsPublic(
+            @Query("filter_content") String filterContent,
+            @Query("size") Integer size,
+            @Query("page") Integer page
+    );
+
     @Multipart
     @POST("api/v1/product/create")
     Call<Product> addProduct(
