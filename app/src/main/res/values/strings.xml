@@ -1,0 +1,58 @@
+<resources>
+    <string name="app_name">QL Cơm Đảo BK</string>
+    <string name="title_login">Đăng nhập</string>
+    <string name="server_url">Địa chỉ Server (URL)</string>
+    <string name="username">Tên đăng nhập</string>
+    <string name="password">Mật khẩu</string>
+    <string name="btn_login">Đăng nhập</string>
+
+    <string name="menu_notice">Thông báo</string>
+    <string name="menu_product">Sản phẩm</string>
+    <string name="menu_category">Danh mục</string>
+    <string name="menu_order">Đơn hàng</string>
+    <string name="logout">Đăng xuất</string>
+
+    <string name="view_notice">Xem thông báo</string>
+    <string name="add_notice">Thêm thông báo</string>
+    <string name="view_product">Xem sản phẩm</string>
+    <string name="add_product">Thêm sản phẩm</string>
+    <string name="edit_product">Sửa sản phẩm</string>
+    <string name="delete_product">Xoá sản phẩm</string>
+    <string name="view_category">Xem danh mục</string>
+    <string name="add_category">Thêm danh mục</string>
+    <string name="edit_category">Sửa danh mục</string>
+    <string name="delete_category">Xoá danh mục</string>
+
+    <string name="title">Tiêu đề</string>
+    <string name="summary">Tóm tắt</string>
+    <string name="content">Nội dung</string>
+    <string name="label">Nhãn</string>
+    <string name="description">Mô tả</string>
+    <string name="price">Giá</string>
+    <string name="currency">Tiền tệ</string>
+    <string name="unit">Đơn vị</string>
+    <string name="badge">Huy hiệu</string>
+    <string name="image_url">Link ảnh</string>
+    <string name="select_image">Chọn ảnh từ máy</string>
+    <string name="product_ids">Danh sách ID sản phẩm</string>
+    <string name="product_id">ID Sản phẩm</string>
+    <string name="category_id">ID Danh mục</string>
+
+    <string name="btn_add">Thêm</string>
+    <string name="btn_save">Lưu thay đổi</string>
+    <string name="btn_delete">Xoá</string>
+
+    <string name="navigation_drawer_open">Mở menu</string>
+    <string name="navigation_drawer_close">Đóng menu</string>
+
+    <!-- UI Template Strings -->
+    <string name="fab_content_description">Nút hành động</string>
+    <string name="nav_header_title">Quản lý Cơm Đảo</string>
+    <string name="nav_header_subtitle">admin@comdaobk.com</string>
+    <string name="nav_header_desc">Header menu</string>
+    <string name="menu_transform">Chuyển đổi</string>
+    <string name="menu_reflow">Làm mới</string>
+    <string name="menu_slideshow">Trình chiếu</string>
+    <string name="menu_settings">Cài đặt</string>
+    <string name="image_view_item_transform_content_description">Ảnh minh họa</string>
+</resources>

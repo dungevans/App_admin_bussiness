@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/et_category_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/category_id"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:visibility="gone" />
+
+        <EditText
+            android:id="@+id/et_category_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/label"
+            android:importantForAutofill="no"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/et_category_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/description"
+            android:importantForAutofill="no"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/et_category_badge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Badge (e.g. HOT)"
+            android:importantForAutofill="no"
+            android:inputType="text" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/btn_add_id_field"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="+"
+                style="?attr/materialButtonOutlinedStyle" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Thêm ID sản phẩm" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_product_ids_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp">
+            <!-- Dynamic ID fields will be added here -->
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_submit_category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/btn_add" />
+
+        <Button
+            android:id="@+id/btn_delete_category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/btn_delete"
+            android:visibility="gone"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:textColor="@color/red" />
+    </LinearLayout>
+</ScrollView>

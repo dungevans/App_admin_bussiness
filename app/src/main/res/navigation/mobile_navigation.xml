@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_login">
+
+    <fragment
+        android:id="@+id/nav_login"
+        android:name="com.lethanh.ql_com_dao_bk.ui.login.LoginFragment"
+        android:label="@string/title_login"
+        tools:layout="@layout/fragment_login" />
+
+    <fragment
+        android:id="@+id/nav_notice"
+        android:name="com.lethanh.ql_com_dao_bk.ui.notice.NoticeFragment"
+        android:label="@string/menu_notice"
+        tools:layout="@layout/fragment_menu_list" />
+
+    <fragment
+        android:id="@+id/nav_product"
+        android:name="com.lethanh.ql_com_dao_bk.ui.product.ProductFragment"
+        android:label="@string/menu_product"
+        tools:layout="@layout/fragment_menu_list" />
+
+    <fragment
+        android:id="@+id/nav_category"
+        android:name="com.lethanh.ql_com_dao_bk.ui.category.CategoryFragment"
+        android:label="@string/menu_category"
+        tools:layout="@layout/fragment_menu_list" />
+
+    <fragment
+        android:id="@+id/nav_notice_list"
+        android:name="com.lethanh.ql_com_dao_bk.ui.notice.NoticeListFragment"
+        android:label="@string/view_notice"
+        tools:layout="@layout/fragment_list" />
+
+    <fragment
+        android:id="@+id/nav_notice_add"
+        android:name="com.lethanh.ql_com_dao_bk.ui.notice.NoticeAddFragment"
+        android:label="@string/add_notice"
+        tools:layout="@layout/fragment_notice_add" />
+
+    <fragment
+        android:id="@+id/nav_product_list"
+        android:name="com.lethanh.ql_com_dao_bk.ui.product.ProductListFragment"
+        android:label="@string/view_product"
+        tools:layout="@layout/fragment_list" />
+
+    <fragment
+        android:id="@+id/nav_product_add"
+        android:name="com.lethanh.ql_com_dao_bk.ui.product.ProductAddFragment"
+        android:label="@string/add_product"
+        tools:layout="@layout/fragment_product_form" />
+
+    <fragment
+        android:id="@+id/nav_product_edit"
+        android:name="com.lethanh.ql_com_dao_bk.ui.product.ProductEditFragment"
+        android:label="@string/edit_product"
+        tools:layout="@layout/fragment_product_form" />
+
+    <fragment
+        android:id="@+id/nav_product_delete"
+        android:name="com.lethanh.ql_com_dao_bk.ui.product.ProductDeleteFragment"
+        android:label="@string/delete_product"
+        tools:layout="@layout/fragment_product_delete" />
+
+    <fragment
+        android:id="@+id/nav_category_list"
+        android:name="com.lethanh.ql_com_dao_bk.ui.category.CategoryListFragment"
+        android:label="@string/view_category"
+        tools:layout="@layout/fragment_list" />
+
+    <fragment
+        android:id="@+id/nav_category_add"
+        android:name="com.lethanh.ql_com_dao_bk.ui.category.CategoryAddFragment"
+        android:label="@string/add_category"
+        tools:layout="@layout/fragment_category_add" />
+
+    <fragment
+        android:id="@+id/nav_category_edit"
+        android:name="com.lethanh.ql_com_dao_bk.ui.category.CategoryEditFragment"
+        android:label="@string/edit_category"
+        tools:layout="@layout/fragment_category_add" />
+
+    <fragment
+        android:id="@+id/nav_category_detail"
+        android:name="com.lethanh.ql_com_dao_bk.ui.category.CategoryDetailFragment"
+        android:label="Chi tiết danh mục"
+        tools:layout="@layout/fragment_category_detail" />
+
+    <fragment
+        android:id="@+id/nav_category_delete"
+        android:name="com.lethanh.ql_com_dao_bk.ui.category.CategoryDeleteFragment"
+        android:label="@string/delete_category"
+        tools:layout="@layout/fragment_category_delete" />
+
+    <fragment
+        android:id="@+id/nav_order_list"
+        android:name="com.lethanh.ql_com_dao_bk.ui.order.OrderListFragment"
+        android:label="@string/menu_order"
+        tools:layout="@layout/fragment_list" />
+
+</navigation>

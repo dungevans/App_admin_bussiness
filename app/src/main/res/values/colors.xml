@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- CSS mapped colors -->
+    <color name="bg">#fbfaf7</color>
+    <color name="surface">#ffffff</color>
+    <color name="surface2">#f2f0eb</color>
+    <color name="surface3">#e5e3de</color>
+    <color name="border">#d4d2cc</color>
+
+    <color name="text_main">#1a1a18</color>
+    <color name="text_muted">#6e6c67</color>
+    <color name="text_dim">#a3a19c</color>
+
+    <color name="accent">#ad8f51</color>
+    <color name="accent_soft">#1Aad8f51</color> <!-- 10% opacity -->
+    <color name="accent_hover">#947841</color>
+    <color name="red">#d64f3c</color>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+</resources>
