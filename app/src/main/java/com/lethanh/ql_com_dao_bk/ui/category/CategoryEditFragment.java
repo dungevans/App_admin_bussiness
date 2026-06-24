@@ -122,7 +122,7 @@ public class CategoryEditFragment extends CategoryAddFragment {
                 }
             }
         }
-        
+
         // Always have at least one empty field if no products
         if (productIdFields.isEmpty()) {
             addIdField();
@@ -164,18 +164,22 @@ public class CategoryEditFragment extends CategoryAddFragment {
         RetrofitClient.getApiService().updateCategory(authHeader, category).enqueue(new Callback<Category>() {
             @Override
             public void onResponse(Call<Category> call, Response<Category> response) {
-                if (response.isSuccessful()) {
-                    if (getContext() != null) {
-                        CategoryViewModel viewModel = new ViewModelProvider(requireActivity()).get(CategoryViewModel.class);
-                        viewModel.fetchCategories();
+                if (getContext() == null) return;
 
-                        Toast.makeText(getContext(), "Cập nhật thành công", Toast.LENGTH_SHORT).show();
-                        Navigation.findNavController(requireView()).popBackStack();
-                    }
+                if (response.isSuccessful()) {
+                    CategoryViewModel viewModel = new ViewModelProvider(requireActivity()).get(CategoryViewModel.class);
+                    viewModel.fetchCategories();
+                    Toast.makeText(getContext(), "Cập nhật thành công", Toast.LENGTH_SHORT).show();
+                    Navigation.findNavController(requireView()).popBackStack();
                 } else {
-                    if (getContext() != null) {
-                        Toast.makeText(getContext(), "Lỗi server: " + response.code(), Toast.LENGTH_SHORT).show();
+                    String errorMsg = "Lỗi server: " + response.code();
+                    try {
+                        if (response.errorBody() != null) {
+                            errorMsg += "\n" + response.errorBody().string();
+                        }
+                    } catch (java.io.IOException ignored) {
                     }
+                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
                 }
             }
 

@@ -37,19 +37,12 @@ public class ProductViewModel extends AndroidViewModel {
         _isLoading.setValue(true);
         String authHeader = "Bearer " + jwt;
 
-        RetrofitClient.getApiService().getProducts(authHeader, 0, 60, "").enqueue(new Callback<ProductResponse>() {
+        RetrofitClient.getApiService().getProducts(authHeader, 0, 60, "", null).enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     _isLoading.setValue(false);
-                    List<Product> allProducts = response.body().getContent();
-                    List<Product> filteredProducts = new ArrayList<>();
-                    for (Product p : allProducts) {
-                        if (p.getId() != null && !LocalHideManager.isProductHidden(getApplication(), p.getId())) {
-                            filteredProducts.add(p);
-                        }
-                    }
-                    _products.setValue(filteredProducts);
+                    _products.setValue(response.body().getContent());
                 } else {
                     fetchProductsPublic();
                 }
@@ -63,19 +56,12 @@ public class ProductViewModel extends AndroidViewModel {
     }
 
     private void fetchProductsPublic() {
-        RetrofitClient.getApiService().getProductsPublic(0, 60, "").enqueue(new Callback<ProductResponse>() {
+        RetrofitClient.getApiService().getProductsPublic(0, 60, "", null).enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
                 _isLoading.setValue(false);
                 if (response.isSuccessful() && response.body() != null) {
-                    List<Product> allProducts = response.body().getContent();
-                    List<Product> filteredProducts = new ArrayList<>();
-                    for (Product p : allProducts) {
-                        if (p.getId() != null && !LocalHideManager.isProductHidden(getApplication(), p.getId())) {
-                            filteredProducts.add(p);
-                        }
-                    }
-                    _products.setValue(filteredProducts);
+                    _products.setValue(response.body().getContent());
                 } else {
                     _error.setValue("Lỗi server: " + response.code());
                 }

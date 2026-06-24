@@ -40,14 +40,16 @@ public interface ApiService {
             @Header("Authorization") String token,
             @Query("page") Integer page,
             @Query("size") Integer size,
-            @Query("filter_content") String filterContent
+            @Query("filter_content") String filterContent,
+            @Query("id") Integer id
     );
 
     @GET("api/v1/product/view")
     Call<ProductResponse> getProductsPublic(
             @Query("page") Integer page,
             @Query("size") Integer size,
-            @Query("filter_content") String filterContent
+            @Query("filter_content") String filterContent,
+            @Query("id") Integer id
     );
 
     @Multipart

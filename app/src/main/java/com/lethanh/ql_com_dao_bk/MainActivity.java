@@ -85,6 +85,18 @@ public class MainActivity extends AppCompatActivity {
             StompClientManager.getInstance().disconnect();
             navController.navigate(R.id.nav_login);
             return true;
+        } else if (item.getItemId() == R.id.action_revert) {
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Khôi phục dữ liệu")
+                    .setMessage("Bạn có muốn hiện lại tất cả các sản phẩm và danh mục đã ẩn local không?")
+                    .setPositiveButton("Hiện lại tất cả", (dialog, which) -> {
+                        com.lethanh.ql_com_dao_bk.utils.LocalHideManager.clearAll(this);
+                        // Refresh the current fragment if possible
+                        recreate(); // Simple way to refresh UI
+                    })
+                    .setNegativeButton("Hủy", null)
+                    .show();
+            return true;
         }
         return NavigationUI.onNavDestinationSelected(item, navController) || super.onOptionsItemSelected(item);
     }

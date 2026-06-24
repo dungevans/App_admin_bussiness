@@ -118,9 +118,7 @@ public class ProductAddFragment extends Fragment {
 
     protected MultipartBody.Part getMultipartFromUri(Uri uri) {
         if (uri == null) {
-            // Create an empty part if no file is selected, or handle as needed
-            RequestBody emptyBody = RequestBody.create(MediaType.parse("image/*"), new byte[0]);
-            return MultipartBody.Part.createFormData("file", "", emptyBody);
+            return null;
         }
         try {
             InputStream inputStream = requireContext().getContentResolver().openInputStream(uri);

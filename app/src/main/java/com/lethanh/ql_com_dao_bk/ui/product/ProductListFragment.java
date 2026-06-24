@@ -76,7 +76,11 @@ public class ProductListFragment extends Fragment {
 
         viewModel.products.observe(getViewLifecycleOwner(), products -> {
             productList.clear();
-            productList.addAll(products);
+            for (Product p : products) {
+                if (p.getId() != null && !com.lethanh.ql_com_dao_bk.utils.LocalHideManager.isProductHidden(requireContext(), p.getId())) {
+                    productList.add(p);
+                }
+            }
             adapter.notifyDataSetChanged();
         });
 
@@ -93,6 +97,20 @@ public class ProductListFragment extends Fragment {
         if (productList.isEmpty()) {
             fetchProducts();
         }
+        
+        // Button to revert local hidden items (if any)
+        binding.swipeRefresh.setOnLongClickListener(v -> {
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Khôi phục dữ liệu")
+                    .setMessage("Bạn có muốn hiện lại tất cả các sản phẩm đã ẩn local không?")
+                    .setPositiveButton("Hiện lại tất cả", (dialog, which) -> {
+                        com.lethanh.ql_com_dao_bk.utils.LocalHideManager.clearAll(requireContext());
+                        fetchProducts();
+                    })
+                    .setNegativeButton("Hủy", null)
+                    .show();
+            return true;
+        });
     }
 
     private void fetchProducts() {

@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.lethanh.ql_com_dao_bk.R;
 import com.lethanh.ql_com_dao_bk.api.RetrofitClient;
@@ -22,10 +21,6 @@ import com.lethanh.ql_com_dao_bk.ui.GenericAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class CategoryListFragment extends Fragment {
 
@@ -73,7 +68,11 @@ public class CategoryListFragment extends Fragment {
 
         viewModel.categories.observe(getViewLifecycleOwner(), categories -> {
             categoryList.clear();
-            categoryList.addAll(categories);
+            for (Category c : categories) {
+                if (c.getId() != null && !com.lethanh.ql_com_dao_bk.utils.LocalHideManager.isCategoryHidden(requireContext(), c.getId())) {
+                    categoryList.add(c);
+                }
+            }
             adapter.notifyDataSetChanged();
         });
 
@@ -90,6 +89,19 @@ public class CategoryListFragment extends Fragment {
         if (categoryList.isEmpty()) {
             viewModel.fetchCategories();
         }
+
+        binding.swipeRefresh.setOnLongClickListener(v -> {
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Khôi phục dữ liệu")
+                    .setMessage("Bạn có muốn hiện lại tất cả các danh mục đã ẩn local không?")
+                    .setPositiveButton("Hiện lại tất cả", (dialog, which) -> {
+                        com.lethanh.ql_com_dao_bk.utils.LocalHideManager.clearAll(requireContext());
+                        viewModel.fetchCategories();
+                    })
+                    .setNegativeButton("Hủy", null)
+                    .show();
+            return true;
+        });
     }
 
     private void fetchCategories() {
@@ -128,7 +140,7 @@ public class CategoryListFragment extends Fragment {
             }
         });
 
-        Toast.makeText(getContext(), "Đã ẩn danh mục (Local)", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "Đã xóa danh mục", Toast.LENGTH_SHORT).show();
     }
 
     @Override

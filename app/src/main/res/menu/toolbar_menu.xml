@@ -7,6 +7,11 @@
         android:title="@string/menu_order"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/action_revert"
+        android:icon="@android:drawable/ic_menu_revert"
+        android:title="Hiện lại mục đã ẩn"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/action_logout"
         android:title="@string/logout"
         app:showAsAction="never" />

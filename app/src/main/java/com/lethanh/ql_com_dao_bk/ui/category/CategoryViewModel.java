@@ -1,6 +1,7 @@
 package com.lethanh.ql_com_dao_bk.ui.category;
 
 import android.app.Application;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -19,12 +20,10 @@ import retrofit2.Response;
 
 public class CategoryViewModel extends AndroidViewModel {
     private final MutableLiveData<List<Category>> _categories = new MutableLiveData<>(new ArrayList<>());
-    public LiveData<List<Category>> categories = _categories;
-
     private final MutableLiveData<Boolean> _isLoading = new MutableLiveData<>(false);
-    public LiveData<Boolean> isLoading = _isLoading;
-
     private final MutableLiveData<String> _error = new MutableLiveData<>();
+    public LiveData<List<Category>> categories = _categories;
+    public LiveData<Boolean> isLoading = _isLoading;
     public LiveData<String> error = _error;
 
     public CategoryViewModel(@NonNull Application application) {
@@ -38,14 +37,7 @@ public class CategoryViewModel extends AndroidViewModel {
             public void onResponse(Call<List<Category>> call, Response<List<Category>> response) {
                 _isLoading.setValue(false);
                 if (response.isSuccessful() && response.body() != null) {
-                    List<Category> all = response.body();
-                    List<Category> filtered = new ArrayList<>();
-                    for (Category c : all) {
-                        if (c.getId() != null && !LocalHideManager.isCategoryHidden(getApplication(), c.getId())) {
-                            filtered.add(c);
-                        }
-                    }
-                    _categories.setValue(filtered);
+                    _categories.setValue(response.body());
                 } else {
                     _error.setValue("Lỗi server: " + response.code());
                 }
