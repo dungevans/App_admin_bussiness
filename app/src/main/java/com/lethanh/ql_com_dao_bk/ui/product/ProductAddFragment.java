@@ -84,7 +84,11 @@ public class ProductAddFragment extends Fragment {
 
         MultipartBody.Part filePart = getMultipartFromUri(selectedImageUri);
 
-        RetrofitClient.getApiService().addProduct(dataPart, filePart).enqueue(new Callback<Product>() {
+        String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
+        if (jwt == null) return;
+        String authHeader = "Bearer " + jwt;
+
+        RetrofitClient.getApiService().addProduct(authHeader, dataPart, filePart).enqueue(new Callback<Product>() {
             @Override
             public void onResponse(Call<Product> call, Response<Product> response) {
                 if (response.isSuccessful()) {

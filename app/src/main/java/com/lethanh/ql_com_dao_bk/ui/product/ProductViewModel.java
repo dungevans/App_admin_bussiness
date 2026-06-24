@@ -7,15 +7,21 @@ import androidx.lifecycle.ViewModel;
 import com.lethanh.ql_com_dao_bk.api.RetrofitClient;
 import com.lethanh.ql_com_dao_bk.model.Product;
 import com.lethanh.ql_com_dao_bk.model.ProductResponse;
+import com.lethanh.ql_com_dao_bk.utils.LocalHideManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import android.app.Application;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ProductViewModel extends ViewModel {
+public class ProductViewModel extends AndroidViewModel {
     private final MutableLiveData<List<Product>> _products = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<Boolean> _isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<String> _error = new MutableLiveData<>();
@@ -23,17 +29,28 @@ public class ProductViewModel extends ViewModel {
     public LiveData<Boolean> isLoading = _isLoading;
     public LiveData<String> error = _error;
 
-    public void fetchProducts() {
+    public ProductViewModel(@NonNull Application application) {
+        super(application);
+    }
+
+    public void fetchProducts(String jwt) {
         _isLoading.setValue(true);
-        // 1. Try Admin endpoint first
-        RetrofitClient.getApiService().getProducts("", 100, 0).enqueue(new Callback<ProductResponse>() {
+        String authHeader = "Bearer " + jwt;
+
+        RetrofitClient.getApiService().getProducts(authHeader, 0, 60, "").enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     _isLoading.setValue(false);
-                    _products.setValue(response.body().getContent());
+                    List<Product> allProducts = response.body().getContent();
+                    List<Product> filteredProducts = new ArrayList<>();
+                    for (Product p : allProducts) {
+                        if (p.getId() != null && !LocalHideManager.isProductHidden(getApplication(), p.getId())) {
+                            filteredProducts.add(p);
+                        }
+                    }
+                    _products.setValue(filteredProducts);
                 } else {
-                    // 2. Try Public endpoint as fallback
                     fetchProductsPublic();
                 }
             }
@@ -46,12 +63,19 @@ public class ProductViewModel extends ViewModel {
     }
 
     private void fetchProductsPublic() {
-        RetrofitClient.getApiService().getProductsPublic("", 100, 0).enqueue(new Callback<ProductResponse>() {
+        RetrofitClient.getApiService().getProductsPublic(0, 60, "").enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
                 _isLoading.setValue(false);
                 if (response.isSuccessful() && response.body() != null) {
-                    _products.setValue(response.body().getContent());
+                    List<Product> allProducts = response.body().getContent();
+                    List<Product> filteredProducts = new ArrayList<>();
+                    for (Product p : allProducts) {
+                        if (p.getId() != null && !LocalHideManager.isProductHidden(getApplication(), p.getId())) {
+                            filteredProducts.add(p);
+                        }
+                    }
+                    _products.setValue(filteredProducts);
                 } else {
                     _error.setValue("Lỗi server: " + response.code());
                 }

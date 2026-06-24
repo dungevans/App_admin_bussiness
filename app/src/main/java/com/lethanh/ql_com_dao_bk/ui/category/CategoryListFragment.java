@@ -108,27 +108,27 @@ public class CategoryListFragment extends Fragment {
     private void deleteCategory(Category category) {
         if (category.getId() == null) return;
 
-        // 1. Delete locally immediately
+        String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
+        String authHeader = jwt != null ? "Bearer " + jwt : "";
+
+        // 1. Permanent Local Hide
+        com.lethanh.ql_com_dao_bk.utils.LocalHideManager.hideCategory(requireContext(), category.getId());
+
+        // 2. Immediate UI Update
         viewModel.deleteCategoryLocally(category.getId());
 
-        // 2. Call API
-        RetrofitClient.getApiService().deleteCategory(category.getId()).enqueue(new retrofit2.Callback<Void>() {
+        // 3. Silent API Call
+        RetrofitClient.getApiService().deleteCategory(authHeader, category.getId()).enqueue(new retrofit2.Callback<Void>() {
             @Override
             public void onResponse(retrofit2.Call<Void> call, retrofit2.Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), "Đã xoá danh mục", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getContext(), "Lỗi server khi xoá: " + response.code(), Toast.LENGTH_SHORT).show();
-                    viewModel.fetchCategories();
-                }
             }
 
             @Override
             public void onFailure(retrofit2.Call<Void> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi kết nối khi xoá", Toast.LENGTH_SHORT).show();
-                viewModel.fetchCategories();
             }
         });
+
+        Toast.makeText(getContext(), "Đã ẩn danh mục (Local)", Toast.LENGTH_SHORT).show();
     }
 
     @Override

@@ -54,8 +54,11 @@ public class ProductDeleteFragment extends Fragment {
             ProductViewModel viewModel = new ViewModelProvider(requireActivity()).get(ProductViewModel.class);
             viewModel.deleteProductLocally(id);
 
+            String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
+            String authHeader = jwt != null ? "Bearer " + jwt : "";
+
             // 2. Silently try to delete from server
-            RetrofitClient.getApiService().deleteProduct(id).enqueue(new Callback<Void>() {
+            RetrofitClient.getApiService().deleteProduct(authHeader, id).enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
                 }

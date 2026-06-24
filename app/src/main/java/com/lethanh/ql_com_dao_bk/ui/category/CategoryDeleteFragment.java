@@ -54,8 +54,11 @@ public class CategoryDeleteFragment extends Fragment {
             CategoryViewModel viewModel = new ViewModelProvider(requireActivity()).get(CategoryViewModel.class);
             viewModel.deleteCategoryLocally(id);
 
+            String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
+            String authHeader = jwt != null ? "Bearer " + jwt : "";
+
             // 2. Silently try to delete from server
-            RetrofitClient.getApiService().deleteCategory(id).enqueue(new Callback<Void>() {
+            RetrofitClient.getApiService().deleteCategory(authHeader, id).enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
                     // We don't care about the result as per user request

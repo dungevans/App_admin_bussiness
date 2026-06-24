@@ -51,10 +51,13 @@ public class CategoryEditFragment extends CategoryAddFragment {
     }
 
     private void deleteCategoryFromServer(int categoryId) {
+        String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
+        String authHeader = jwt != null ? "Bearer " + jwt : "";
+
         CategoryViewModel viewModel = new ViewModelProvider(requireActivity()).get(CategoryViewModel.class);
         viewModel.deleteCategoryLocally(categoryId);
 
-        RetrofitClient.getApiService().deleteCategory(categoryId).enqueue(new Callback<Void>() {
+        RetrofitClient.getApiService().deleteCategory(authHeader, categoryId).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (getContext() != null) {
@@ -74,7 +77,10 @@ public class CategoryEditFragment extends CategoryAddFragment {
     }
 
     private void fetchCategoryDetails(int id) {
-        RetrofitClient.getApiService().getCategoryAdmin(id).enqueue(new Callback<Category>() {
+        String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
+        String authHeader = jwt != null ? "Bearer " + jwt : "";
+
+        RetrofitClient.getApiService().getCategoryAdmin(authHeader, id).enqueue(new Callback<Category>() {
             @Override
             public void onResponse(Call<Category> call, Response<Category> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -151,7 +157,11 @@ public class CategoryEditFragment extends CategoryAddFragment {
         category.setId(id);
         category.setBadge(binding.etCategoryBadge.getText().toString());
 
-        RetrofitClient.getApiService().updateCategory(category).enqueue(new Callback<Category>() {
+        String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
+        if (jwt == null) return;
+        String authHeader = "Bearer " + jwt;
+
+        RetrofitClient.getApiService().updateCategory(authHeader, category).enqueue(new Callback<Category>() {
             @Override
             public void onResponse(Call<Category> call, Response<Category> response) {
                 if (response.isSuccessful()) {

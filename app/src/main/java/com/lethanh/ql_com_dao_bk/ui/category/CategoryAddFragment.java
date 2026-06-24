@@ -88,7 +88,12 @@ public class CategoryAddFragment extends Fragment {
 
         Category category = new Category(label, desc, productIds);
         category.setBadge(binding.etCategoryBadge != null ? binding.etCategoryBadge.getText().toString() : null);
-        RetrofitClient.getApiService().addCategory(category).enqueue(new Callback<Category>() {
+
+        String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
+        if (jwt == null) return;
+        String authHeader = "Bearer " + jwt;
+
+        RetrofitClient.getApiService().addCategory(authHeader, category).enqueue(new Callback<Category>() {
             @Override
             public void onResponse(Call<Category> call, Response<Category> response) {
                 if (response.isSuccessful()) {

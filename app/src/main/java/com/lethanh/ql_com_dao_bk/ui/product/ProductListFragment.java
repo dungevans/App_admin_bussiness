@@ -12,22 +12,16 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.lethanh.ql_com_dao_bk.R;
 import com.lethanh.ql_com_dao_bk.api.RetrofitClient;
 import com.lethanh.ql_com_dao_bk.databinding.FragmentListBinding;
 import com.lethanh.ql_com_dao_bk.model.Product;
-import com.lethanh.ql_com_dao_bk.model.ProductResponse;
 import com.lethanh.ql_com_dao_bk.ui.GenericAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class ProductListFragment extends Fragment {
 
@@ -78,7 +72,7 @@ public class ProductListFragment extends Fragment {
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerView.setAdapter(adapter);
 
-        binding.swipeRefresh.setOnRefreshListener(() -> viewModel.fetchProducts());
+        binding.swipeRefresh.setOnRefreshListener(this::fetchProducts);
 
         viewModel.products.observe(getViewLifecycleOwner(), products -> {
             productList.clear();
@@ -97,12 +91,17 @@ public class ProductListFragment extends Fragment {
         });
 
         if (productList.isEmpty()) {
-            viewModel.fetchProducts();
+            fetchProducts();
         }
     }
 
     private void fetchProducts() {
-        viewModel.fetchProducts();
+        String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
+        if (jwt != null) {
+            viewModel.fetchProducts(jwt);
+        } else {
+            Toast.makeText(getContext(), "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void confirmDeleteProduct(Product product) {
@@ -117,28 +116,29 @@ public class ProductListFragment extends Fragment {
     private void deleteProduct(Product product) {
         if (product.getId() == null) return;
 
-        // 1. Delete locally immediately
+        String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
+        String authHeader = jwt != null ? "Bearer " + jwt : null;
+
+        // 1. Permanent Local Hide (Even after app restart)
+        com.lethanh.ql_com_dao_bk.utils.LocalHideManager.hideProduct(requireContext(), product.getId());
+
+        // 2. Immediate UI Update
         viewModel.deleteProductLocally(product.getId());
 
-        // 2. Call API
-        RetrofitClient.getApiService().deleteProduct(product.getId()).enqueue(new retrofit2.Callback<Void>() {
+        // 3. Silent API Call (We don't care if it fails with 500)
+        RetrofitClient.getApiService().deleteProduct(authHeader, product.getId()).enqueue(new retrofit2.Callback<Void>() {
             @Override
             public void onResponse(retrofit2.Call<Void> call, retrofit2.Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), "Đã xoá sản phẩm", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getContext(), "Lỗi server khi xoá: " + response.code(), Toast.LENGTH_SHORT).show();
-                    // Optional: re-fetch if we want to be sure
-                    viewModel.fetchProducts();
-                }
+                // Background success/fail doesn't affect local app state anymore
             }
 
             @Override
             public void onFailure(retrofit2.Call<Void> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi kết nối khi xoá", Toast.LENGTH_SHORT).show();
-                viewModel.fetchProducts();
+                // Background success/fail doesn't affect local app state anymore
             }
         });
+
+        Toast.makeText(getContext(), "Đã xóa sản phẩm", Toast.LENGTH_SHORT).show();
     }
 
     @Override

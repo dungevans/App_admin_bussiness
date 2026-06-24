@@ -55,14 +55,14 @@ public class CategoryDetailFragment extends Fragment {
             holder.title.setText(product.getLabel());
             String priceInfo = String.format("%.0f %s/%s", product.getPrice(), product.getCurrency(), product.getUnit());
             holder.subtitle.setText(priceInfo + "\n" + product.getDescription());
-            
+
             if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
                 holder.image.setVisibility(View.VISIBLE);
                 Glide.with(this).load(product.getImageUrl()).into(holder.image);
             } else {
                 holder.image.setVisibility(View.GONE);
             }
-            
+
             holder.itemView.setOnClickListener(v -> {
                 Bundle args = new Bundle();
                 args.putString("product_json", new com.google.gson.Gson().toJson(product));
@@ -94,32 +94,40 @@ public class CategoryDetailFragment extends Fragment {
     }
 
     private void deleteCategoryFromServer() {
+        String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
+        String authHeader = jwt != null ? "Bearer " + jwt : "";
+
+        // 1. Permanent Local Hide
+        com.lethanh.ql_com_dao_bk.utils.LocalHideManager.hideCategory(requireContext(), categoryId);
+
+        // 2. Immediate UI Update
         CategoryViewModel viewModel = new ViewModelProvider(requireActivity()).get(CategoryViewModel.class);
         viewModel.deleteCategoryLocally(categoryId);
 
-        RetrofitClient.getApiService().deleteCategory(categoryId).enqueue(new Callback<Void>() {
+        // 3. Silent API Call
+        RetrofitClient.getApiService().deleteCategory(authHeader, categoryId).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Đã xoá danh mục", Toast.LENGTH_SHORT).show();
-                    Navigation.findNavController(requireView()).popBackStack();
-                }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Lỗi khi xoá", Toast.LENGTH_SHORT).show();
-                    Navigation.findNavController(requireView()).popBackStack();
-                }
             }
         });
+
+        Toast.makeText(getContext(), "Đã ẩn danh mục (Local)", Toast.LENGTH_SHORT).show();
+        Navigation.findNavController(requireView()).popBackStack();
     }
 
     private void fetchCategoryDetails(int id) {
         if (binding.swipeRefresh != null) binding.swipeRefresh.setRefreshing(true);
+
+        String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
+        if (jwt == null) return;
+        String authHeader = "Bearer " + jwt;
+
         // Try Admin endpoint first
-        RetrofitClient.getApiService().getCategoryAdmin(id).enqueue(new Callback<Category>() {
+        RetrofitClient.getApiService().getCategoryAdmin(authHeader, id).enqueue(new Callback<Category>() {
             @Override
             public void onResponse(Call<Category> call, Response<Category> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -159,7 +167,10 @@ public class CategoryDetailFragment extends Fragment {
     }
 
     private void fetchCategoryDetailsPath(int id) {
-        RetrofitClient.getApiService().getCategoryAdminPath(id).enqueue(new Callback<Category>() {
+        String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
+        String authHeader = jwt != null ? "Bearer " + jwt : "";
+
+        RetrofitClient.getApiService().getCategoryAdminPath(authHeader, id).enqueue(new Callback<Category>() {
             @Override
             public void onResponse(Call<Category> call, Response<Category> response) {
                 if (binding.swipeRefresh != null) binding.swipeRefresh.setRefreshing(false);
@@ -186,12 +197,12 @@ public class CategoryDetailFragment extends Fragment {
     private void displayCategory(Category category) {
         binding.tvDetailLabel.setText(category.getLabel());
         binding.tvDetailDescription.setText(category.getDescription());
-        
+
         productList.clear();
         if (category.getProducts() != null) {
             productList.addAll(category.getProducts());
         }
-        
+
         if (productList.isEmpty()) {
             if (getContext() != null) {
                 Toast.makeText(getContext(), "Danh mục này chưa có sản phẩm", Toast.LENGTH_SHORT).show();

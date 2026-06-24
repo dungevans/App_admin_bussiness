@@ -1,11 +1,14 @@
 package com.lethanh.ql_com_dao_bk.ui.category;
 
+import android.app.Application;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.lethanh.ql_com_dao_bk.api.RetrofitClient;
 import com.lethanh.ql_com_dao_bk.model.Category;
+import com.lethanh.ql_com_dao_bk.utils.LocalHideManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +17,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CategoryViewModel extends ViewModel {
+public class CategoryViewModel extends AndroidViewModel {
     private final MutableLiveData<List<Category>> _categories = new MutableLiveData<>(new ArrayList<>());
     public LiveData<List<Category>> categories = _categories;
 
@@ -24,6 +27,10 @@ public class CategoryViewModel extends ViewModel {
     private final MutableLiveData<String> _error = new MutableLiveData<>();
     public LiveData<String> error = _error;
 
+    public CategoryViewModel(@NonNull Application application) {
+        super(application);
+    }
+
     public void fetchCategories() {
         _isLoading.setValue(true);
         RetrofitClient.getApiService().getCategories().enqueue(new Callback<List<Category>>() {
@@ -31,7 +38,14 @@ public class CategoryViewModel extends ViewModel {
             public void onResponse(Call<List<Category>> call, Response<List<Category>> response) {
                 _isLoading.setValue(false);
                 if (response.isSuccessful() && response.body() != null) {
-                    _categories.setValue(response.body());
+                    List<Category> all = response.body();
+                    List<Category> filtered = new ArrayList<>();
+                    for (Category c : all) {
+                        if (c.getId() != null && !LocalHideManager.isCategoryHidden(getApplication(), c.getId())) {
+                            filtered.add(c);
+                        }
+                    }
+                    _categories.setValue(filtered);
                 } else {
                     _error.setValue("Lỗi server: " + response.code());
                 }

@@ -16,6 +16,12 @@ public class ProductResponse {
     @SerializedName("number")
     private int pageNumber;
 
+    @SerializedName("size")
+    private int pageSize;
+
+    @SerializedName("number_of_elements")
+    private int numberOfElements;
+
     public List<Product> getContent() {
         return content;
     }
@@ -46,5 +52,21 @@ public class ProductResponse {
 
     public void setPageNumber(int pageNumber) {
         this.pageNumber = pageNumber;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public int getNumberOfElements() {
+        return numberOfElements;
+    }
+
+    public void setNumberOfElements(int numberOfElements) {
+        this.numberOfElements = numberOfElements;
     }
 }

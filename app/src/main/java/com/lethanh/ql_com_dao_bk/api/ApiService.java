@@ -16,6 +16,7 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -33,23 +34,26 @@ public interface ApiService {
     @PUT("api/v1/notice")
     Call<Notice> addNotice(@Body Notice notice);
 
+    // ĐÃ SỬA: Header Authorization đã được handle bởi Interceptor trong RetrofitClient
     @GET("api/v1/product/view/admin")
     Call<ProductResponse> getProducts(
-            @Query("filter_content") String filterContent,
+            @Header("Authorization") String token,
+            @Query("page") Integer page,
             @Query("size") Integer size,
-            @Query("page") Integer page
+            @Query("filter_content") String filterContent
     );
 
     @GET("api/v1/product/view")
     Call<ProductResponse> getProductsPublic(
-            @Query("filter_content") String filterContent,
+            @Query("page") Integer page,
             @Query("size") Integer size,
-            @Query("page") Integer page
+            @Query("filter_content") String filterContent
     );
 
     @Multipart
     @POST("api/v1/product/create")
     Call<Product> addProduct(
+            @Header("Authorization") String token,
             @Part("data") RequestBody data,
             @Part MultipartBody.Part file
     );
@@ -57,12 +61,16 @@ public interface ApiService {
     @Multipart
     @PUT("api/v1/product/update")
     Call<Product> updateProduct(
+            @Header("Authorization") String token,
             @Part("data") RequestBody data,
             @Part MultipartBody.Part file
     );
 
     @DELETE("api/v1/product/delete")
-    Call<Void> deleteProduct(@Query("id") int id);
+    Call<Void> deleteProduct(
+            @Header("Authorization") String token,
+            @Query("id") int id
+    );
 
     @GET("api/v1/category/view/all")
     Call<List<Category>> getCategories();
@@ -71,19 +79,34 @@ public interface ApiService {
     Call<Category> getCategory(@Query("id") int id);
 
     @GET("api/v1/category/view/admin")
-    Call<Category> getCategoryAdmin(@Query("id") int id);
+    Call<Category> getCategoryAdmin(
+            @Header("Authorization") String token,
+            @Query("id") int id
+    );
 
     @GET("api/v1/category/view/admin/{id}")
-    Call<Category> getCategoryAdminPath(@Path("id") int id);
+    Call<Category> getCategoryAdminPath(
+            @Header("Authorization") String token,
+            @Path("id") int id
+    );
 
     @POST("api/v1/category/create")
-    Call<Category> addCategory(@Body Category category);
+    Call<Category> addCategory(
+            @Header("Authorization") String token,
+            @Body Category category
+    );
 
     @PUT("api/v1/category/update")
-    Call<Category> updateCategory(@Body Category category);
+    Call<Category> updateCategory(
+            @Header("Authorization") String token,
+            @Body Category category
+    );
 
     @DELETE("api/v1/category/delete")
-    Call<Void> deleteCategory(@Query("id") int id);
+    Call<Void> deleteCategory(
+            @Header("Authorization") String token,
+            @Query("id") int id
+    );
 
     @GET("api/v1/order")
     Call<List<Object>> getOrders();

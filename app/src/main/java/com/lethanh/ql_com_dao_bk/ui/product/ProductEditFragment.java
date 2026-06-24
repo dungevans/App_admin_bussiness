@@ -34,7 +34,7 @@ public class ProductEditFragment extends ProductAddFragment {
             if (getArguments() != null && getArguments().containsKey("product_json")) {
                 Product product = new Gson().fromJson(getArguments().getString("product_json"), Product.class);
                 if (product.getId() != null) {
-                    confirmDelete(product.getId());
+                    confirmDelete(product);
                 }
             }
         });
@@ -60,36 +60,39 @@ public class ProductEditFragment extends ProductAddFragment {
         }
     }
 
-    private void confirmDelete(int productId) {
+    private void confirmDelete(Product product) {
         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Xác nhận xoá")
                 .setMessage("Bạn có chắc chắn muốn xoá sản phẩm này?")
-                .setPositiveButton("Xoá", (dialog, which) -> deleteProductFromServer(productId))
+                .setPositiveButton("Xoá", (dialog, which) -> deleteProductFromServer(product))
                 .setNegativeButton("Huỷ", null)
                 .show();
     }
 
-    private void deleteProductFromServer(int productId) {
-        ProductViewModel viewModel = new ViewModelProvider(requireActivity()).get(ProductViewModel.class);
-        viewModel.deleteProductLocally(productId);
+    private void deleteProductFromServer(Product product) {
+        String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
+        String authHeader = jwt != null ? "Bearer " + jwt : "";
 
-        RetrofitClient.getApiService().deleteProduct(productId).enqueue(new retrofit2.Callback<Void>() {
+        // 1. Permanent Local Hide
+        com.lethanh.ql_com_dao_bk.utils.LocalHideManager.hideProduct(requireContext(), product.getId());
+
+        // 2. Immediate UI Update
+        ProductViewModel viewModel = new ViewModelProvider(requireActivity()).get(ProductViewModel.class);
+        viewModel.deleteProductLocally(product.getId());
+
+        // 3. Silent API Call
+        RetrofitClient.getApiService().deleteProduct(authHeader, product.getId()).enqueue(new retrofit2.Callback<Void>() {
             @Override
             public void onResponse(retrofit2.Call<Void> call, retrofit2.Response<Void> response) {
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Đã xoá sản phẩm", Toast.LENGTH_SHORT).show();
-                    Navigation.findNavController(requireView()).popBackStack();
-                }
             }
 
             @Override
             public void onFailure(retrofit2.Call<Void> call, Throwable t) {
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Lỗi khi xoá", Toast.LENGTH_SHORT).show();
-                    Navigation.findNavController(requireView()).popBackStack();
-                }
             }
         });
+
+        Toast.makeText(getContext(), "Đã ẩn sản phẩm (Local)", Toast.LENGTH_SHORT).show();
+        Navigation.findNavController(requireView()).popBackStack();
     }
 
     @Override
@@ -117,13 +120,17 @@ public class ProductEditFragment extends ProductAddFragment {
 
         MultipartBody.Part filePart = getMultipartFromUri(selectedImageUri);
 
-        RetrofitClient.getApiService().updateProduct(dataPart, filePart).enqueue(new Callback<Product>() {
+        String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
+        if (jwt == null) return;
+        String authHeader = "Bearer " + jwt;
+
+        RetrofitClient.getApiService().updateProduct(authHeader, dataPart, filePart).enqueue(new Callback<Product>() {
             @Override
             public void onResponse(Call<Product> call, Response<Product> response) {
                 if (response.isSuccessful()) {
                     if (getContext() != null) {
                         ProductViewModel viewModel = new ViewModelProvider(requireActivity()).get(ProductViewModel.class);
-                        viewModel.fetchProducts();
+                        viewModel.fetchProducts(jwt);
 
                         Toast.makeText(getContext(), "Cập nhật thành công", Toast.LENGTH_SHORT).show();
                         Navigation.findNavController(requireView()).popBackStack();

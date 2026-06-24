@@ -3,16 +3,33 @@ package com.lethanh.ql_com_dao_bk.model;
 import com.google.gson.annotations.SerializedName;
 
 public class Product {
+    @SerializedName("id")
     private Integer id;
+
+    @SerializedName("label")
     private String label;
+
+    @SerializedName("description")
     private String description;
+
+    @SerializedName("price")
     private double price;
+
+    @SerializedName("currency")
     private String currency;
+
+    @SerializedName("unit")
     private String unit;
+
+    @SerializedName("badge")
     private String badge;
-    private boolean retrievable;
+
+    @SerializedName("created")
     private String created;
-    
+
+    @SerializedName("retrievable")
+    private boolean retrievable;
+
     @SerializedName("image_url")
     private String imageUrl;
 
@@ -49,11 +66,10 @@ public class Product {
     public void setUnit(String unit) { this.unit = unit; }
     public String getBadge() { return badge; }
     public void setBadge(String badge) { this.badge = badge; }
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-
     public boolean isRetrievable() { return retrievable; }
     public void setRetrievable(boolean retrievable) { this.retrievable = retrievable; }
     public String getCreated() { return created; }
     public void setCreated(String created) { this.created = created; }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }
