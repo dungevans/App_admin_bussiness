@@ -52,6 +52,21 @@ public interface ApiService {
             @Query("id") Integer id
     );
 
+    @GET("api/v1/product/view")
+    Call<Product> getProduct(@Query("id") int id);
+
+    @GET("api/v1/product/view/admin")
+    Call<Product> getProductAdmin(
+            @Header("Authorization") String token,
+            @Query("id") int id
+    );
+
+    @GET("api/v1/product/view/admin/{id}")
+    Call<Product> getProductAdminPath(
+            @Header("Authorization") String token,
+            @Path("id") int id
+    );
+
     @Multipart
     @POST("api/v1/product/create")
     Call<Product> addProduct(

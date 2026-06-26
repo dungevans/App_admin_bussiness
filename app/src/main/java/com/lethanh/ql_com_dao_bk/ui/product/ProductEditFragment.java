@@ -53,35 +53,106 @@ public class ProductEditFragment extends ProductAddFragment {
 
     private void fetchProductDetails(int id) {
         String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
-        if (jwt == null) return;
-        String authHeader = "Bearer " + jwt;
+        String authHeader = jwt != null ? "Bearer " + jwt : "";
 
-        RetrofitClient.getApiService().getProducts(authHeader, 0, 10, null, id).enqueue(new Callback<com.lethanh.ql_com_dao_bk.model.ProductResponse>() {
+        // 1. Try Admin with ID query param
+        RetrofitClient.getApiService().getProductAdmin(authHeader, id).enqueue(new Callback<Product>() {
+            @Override
+            public void onResponse(Call<Product> call, Response<Product> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    onFetchSuccess(response.body());
+                } else {
+                    // 2. Try Admin with Path variable
+                    fetchProductDetailsPath(id, authHeader);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Product> call, Throwable t) {
+                fetchProductDetailsPath(id, authHeader);
+            }
+        });
+    }
+
+    private void fetchProductDetailsPath(int id, String authHeader) {
+        RetrofitClient.getApiService().getProductAdminPath(authHeader, id).enqueue(new Callback<Product>() {
+            @Override
+            public void onResponse(Call<Product> call, Response<Product> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    onFetchSuccess(response.body());
+                } else {
+                    // 3. Try Public with ID query param
+                    fetchProductDetailsPublic(id);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Product> call, Throwable t) {
+                fetchProductDetailsPublic(id);
+            }
+        });
+    }
+
+    private void fetchProductDetailsPublic(int id) {
+        RetrofitClient.getApiService().getProduct(id).enqueue(new Callback<Product>() {
+            @Override
+            public void onResponse(Call<Product> call, Response<Product> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    onFetchSuccess(response.body());
+                } else {
+                    // 4. Final attempt: Try searching in the list wrapper
+                    fetchProductInList(id);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Product> call, Throwable t) {
+                fetchProductInList(id);
+            }
+        });
+    }
+
+    private void fetchProductInList(int id) {
+        String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
+        String authHeader = jwt != null ? "Bearer " + jwt : "";
+
+        RetrofitClient.getApiService().getProducts(authHeader, 0, 10, "", id).enqueue(new Callback<com.lethanh.ql_com_dao_bk.model.ProductResponse>() {
             @Override
             public void onResponse(Call<com.lethanh.ql_com_dao_bk.model.ProductResponse> call, Response<com.lethanh.ql_com_dao_bk.model.ProductResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
+                if (response.isSuccessful() && response.body() != null && response.body().getContent() != null) {
                     for (Product p : response.body().getContent()) {
                         if (p.getId() != null && p.getId() == id) {
-                            populateFields(p);
-                            // Store the fetched product in arguments for submitProduct()
-                            getArguments().putString("product_json", new Gson().toJson(p));
+                            onFetchSuccess(p);
                             return;
                         }
                     }
                 }
                 if (getContext() != null) {
-                    System.out.println("Fetch Product");
-                    Toast.makeText(getContext(), "Không tìm thấy sản phẩm trên server", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Không tìm thấy sản phẩm ID: " + id, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<com.lethanh.ql_com_dao_bk.model.ProductResponse> call, Throwable t) {
                 if (getContext() != null) {
-                    Toast.makeText(getContext(), "Lỗi tải dữ liệu", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
+    }
+
+    private void onFetchSuccess(Product p) {
+        populateFields(p);
+        updateArguments(p);
+    }
+
+    private void updateArguments(Product p) {
+        Bundle args = getArguments();
+        if (args == null) {
+            args = new Bundle();
+            setArguments(args);
+        }
+        args.putString("product_json", new Gson().toJson(p));
     }
 
     private void populateFields(Product product) {
@@ -142,7 +213,15 @@ public class ProductEditFragment extends ProductAddFragment {
         }
 
         if (product == null) {
-            Toast.makeText(getContext(), "Không tìm thấy thông tin sản phẩm để cập nhật", Toast.LENGTH_SHORT).show();
+            String idStr = binding.etId.getText().toString().trim();
+            if (!idStr.isEmpty()) {
+                product = new Product();
+                product.setId(idStr);
+            }
+        }
+
+        if (product == null || product.getId() == null) {
+            Toast.makeText(getContext(), "Vui lòng nhập ID sản phẩm hợp lệ", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -166,8 +245,18 @@ public class ProductEditFragment extends ProductAddFragment {
         product.setBadge(badge);
         product.setRetrievable(binding.cbRetrievable.isChecked());
 
+        // Create a clean map for update to match Documentation 3.4 exactly
+        java.util.Map<String, Object> updateMap = new java.util.HashMap<>();
+        updateMap.put("id", product.getId());
+        updateMap.put("label", label);
+        updateMap.put("description", desc);
+        updateMap.put("price", product.getPrice());
+        updateMap.put("unit", unit);
+        updateMap.put("badge", badge);
+        updateMap.put("retrievable", product.isRetrievable());
+
         Gson gson = new Gson();
-        String json = gson.toJson(product);
+        String json = gson.toJson(updateMap);
         RequestBody dataPart = RequestBody.create(MediaType.parse("application/json"), json);
 
         MultipartBody.Part filePart = getMultipartFromUri(selectedImageUri);

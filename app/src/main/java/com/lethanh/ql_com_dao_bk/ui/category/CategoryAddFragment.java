@@ -88,6 +88,7 @@ public class CategoryAddFragment extends Fragment {
 
         Category category = new Category(label, desc, productIds);
         category.setBadge(binding.etCategoryBadge != null ? binding.etCategoryBadge.getText().toString() : null);
+        category.setRetrievable(binding.cbCategoryRetrievable.isChecked());
 
         String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
         if (jwt == null) return;

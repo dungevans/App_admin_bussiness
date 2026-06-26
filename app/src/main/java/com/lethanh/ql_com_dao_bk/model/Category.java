@@ -16,6 +16,9 @@ public class Category {
     @SerializedName("product_ids")
     private List<Integer> productIds;
 
+    @SerializedName("retrievable")
+    private Boolean retrievable;
+
     public Category() {
     }
 
@@ -84,5 +87,13 @@ public class Category {
 
     public void setProductIds(List<Integer> productIds) {
         this.productIds = productIds;
+    }
+
+    public Boolean isRetrievable() {
+        return retrievable;
+    }
+
+    public void setRetrievable(Boolean retrievable) {
+        this.retrievable = retrievable;
     }
 }

@@ -80,16 +80,53 @@ public class CategoryEditFragment extends CategoryAddFragment {
         String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
         String authHeader = jwt != null ? "Bearer " + jwt : "";
 
+        // 1. Try Admin with ID query param
         RetrofitClient.getApiService().getCategoryAdmin(authHeader, id).enqueue(new Callback<Category>() {
             @Override
             public void onResponse(Call<Category> call, Response<Category> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    if (getContext() != null) {
-                        populateFields(response.body());
-                    }
+                    populateFields(response.body());
+                } else {
+                    // 2. Try Admin with Path variable
+                    fetchCategoryDetailsPath(id, authHeader);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Category> call, Throwable t) {
+                fetchCategoryDetailsPath(id, authHeader);
+            }
+        });
+    }
+
+    private void fetchCategoryDetailsPath(int id, String authHeader) {
+        RetrofitClient.getApiService().getCategoryAdminPath(authHeader, id).enqueue(new Callback<Category>() {
+            @Override
+            public void onResponse(Call<Category> call, Response<Category> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    populateFields(response.body());
+                } else {
+                    // 3. Try Public with ID query param
+                    fetchCategoryDetailsPublic(id);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Category> call, Throwable t) {
+                fetchCategoryDetailsPublic(id);
+            }
+        });
+    }
+
+    private void fetchCategoryDetailsPublic(int id) {
+        RetrofitClient.getApiService().getCategory(id).enqueue(new Callback<Category>() {
+            @Override
+            public void onResponse(Call<Category> call, Response<Category> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    populateFields(response.body());
                 } else {
                     if (getContext() != null) {
-                        Toast.makeText(getContext(), "Không thể tải dữ liệu danh mục", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Không tìm thấy danh mục ID: " + id, Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -97,7 +134,7 @@ public class CategoryEditFragment extends CategoryAddFragment {
             @Override
             public void onFailure(Call<Category> call, Throwable t) {
                 if (getContext() != null) {
-                    Toast.makeText(getContext(), "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -110,6 +147,9 @@ public class CategoryEditFragment extends CategoryAddFragment {
         binding.etCategoryLabel.setText(category.getLabel());
         binding.etCategoryDescription.setText(category.getDescription());
         binding.etCategoryBadge.setText(category.getBadge());
+        if (category.isRetrievable() != null) {
+            binding.cbCategoryRetrievable.setChecked(category.isRetrievable());
+        }
 
         // Clear existing product ID fields
         binding.llProductIdsContainer.removeAllViews();
@@ -153,9 +193,12 @@ public class CategoryEditFragment extends CategoryAddFragment {
             }
         }
 
+        // Create a clean Category object for update to match Documentation 4.5 exactly
         Category category = new Category(label, desc, productIds);
         category.setId(id);
         category.setBadge(binding.etCategoryBadge.getText().toString());
+        category.setRetrievable(binding.cbCategoryRetrievable.isChecked());
+        category.setProducts(null); // Ensure the list of objects is not sent, only product_ids
 
         String jwt = com.lethanh.ql_com_dao_bk.utils.TokenManager.getJwt(requireContext());
         if (jwt == null) return;
